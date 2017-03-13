@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block main %}
+
+<h1 class="page-header">Add a User</h1>
+<p> Fill in this form to create a user profile.</p>
+<br>
+
+{% include 'flash_messages.html' %}
+
+<form method='POST' action="{{url_for('addProf') }}" enctype="multipart/form-data">
+
+<h1> Create a User Profile</h1>
+    Username {{form.username}}
+    <br><br>
+    First Name {{ form.first_name }}
+    <br><br>
+    Last Name {{ form.last_name }}
+    <br><br>
+    Age {{ form.age }}
+    <br><br>
+    Sex {{ form.sex }}
+    <br><br>
+    Biography {{ form.biography }}
+    <br><br>
+    Upload a Profile Photo {{ form.image }}
+    <input type="file" name="picture" accept="image/*" class="fields">
+    <br><br>
+    <input type="submit" value="Submit">
+    
+</form>
+{% endblock %}

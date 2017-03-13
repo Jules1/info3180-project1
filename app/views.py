@@ -4,13 +4,24 @@ Jinja2 Documentation:    http://jinja.pocoo.org/2/documentation/
 Werkzeug Documentation:  http://werkzeug.pocoo.org/documentation/
 This file creates your application.
 """
+import os, time, json
 
-from app import app, db, login_manager
-from flask import render_template, request, redirect, url_for, flash
-from flask_login import login_user, logout_user, current_user, login_required
-from forms import LoginForm
-from models import UserProfile
+from app import app, db
+from app.models import UserProfile
+from flask import render_template, request, redirect, url_for, flash,jsonify
+from wtforms import TextAreaField, TextField, IntegerField, SelectField, validators, Form
 
+
+class profileForm(Form):
+    username = TextField('username', [validators.Required()])
+    first_name = TextField('first_name', [validators.Required()])
+    last_name = TextField('last_name', [validators.Required()])
+    age = IntegerField('age', [validators.Required()])
+    sex = SelectField('sex',choices=[('male', 'Male'), ('female','Female')])
+    biography = TextAreaField('Biography',[validators.Required()])
+
+def date():
+    return time.strftime("%m %d %Y")
 
 ###
 # Routing for your application.
@@ -25,33 +36,49 @@ def home():
 def about():
     """Render the website's about page."""
     return render_template('about.html')
+    
+@app.route('/profile', methods=('GET', 'POST'))
+def addProf():
+    form = profileForm(csrf_enables=False)  
+    file_folder = app.config['UPLOAD_FOLDER']
+    
+    if request.method == 'POST':
+        if form.validate():
+            username = request.form['username']
+            firstname = request.form['first_name']
+            lastname = request.form['last_name']
+            age = request.form['age']
+            sex = request.form['sex']
+            biography = request.form['biography']
+            image = request.form['image']
+            creation = date()
+            newprofile = UserProfile(id,username,firstname,lastname,age,sex,biography,image,creation)
+            db.session.add(newprofile)
+            db.session.commit()
+        addSuccess()
+    return render_template('profile.html', form=form)
 
-@app.route("/login", methods=["GET", "POST"])
-def login():
-    form = LoginForm()
-    if request.method == "POST":
-        # change this to actually validate the entire form submission
-        # and not just one field
-        if form.username.data:
-            # Get the username and password values from the form.
+def addSuccess():
+    flash('New user has been successfully added!', 'success')
+    
+@app.route('/failure')
+def failure():
+    return render_template('failure.html')
+    
+@app.route('/profiles', methods=["GET", "POST"])
+def profiles():
+    profList = []
+    if request.method=="POST":
+        profs = db.session.query(UserProfile).all()
+        for prof in profs:
+            profInfo = {'username':prof.username, 'userid':prof.id}
+            profList.append(profInfo)
+        return jsonify(profList)
+    
+@app.route("/profile/<userid>", methods=["GET","POST"])
+def viewProf(userid):
+    return render_template('viewprofile.html')
 
-            # using your model, query database for a user based on the username
-            # and password submitted
-            # store the result of that query to a `user` variable so it can be
-            # passed to the login_user() method.
-
-            # get user id, load into session
-            login_user(user)
-
-            # remember to flash a message to the user
-            return redirect(url_for("home")) # they should be redirected to a secure-page route instead
-    return render_template("login.html", form=form)
-
-# user_loader callback. This callback is used to reload the user object from
-# the user ID stored in the session
-@login_manager.user_loader
-def load_user(id):
-    return UserProfile.query.get(int(id))
 
 ###
 # The functions below should be applicable to all Flask apps.

@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block main %}
+
+<h1>Profile Listing</h1>
+<ul>
+    {% for prof in profs %}
+    <li><a href="/profile/{{prof.username}}"> {{ prof.first_name }} {{prof.last_name}}</a></li>
+    {% endfor %}
+  </ul>
+</div>
+
+{% endblock %}

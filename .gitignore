@@ -1,10 +1,35 @@
-# Files to ignore when adding and committing files to a repository
+# Virtualenv
+venv
+env
+.Python
+include
+lib
+
+# Python Packages
+*.egg
+*.egg-info
+bin
+build
+dist
+sdist
+eggs
+env
+parts
+var
+develop-eggs
+.installed.cfg
+
+# Pip Installer Log
+pip-log.txt
+
+# Unit test / coverage
+.coverage
+.tox
+
+# Mac OS X
 .DS_Store
-Thumbs.db
 
-*.py[cod]
-*$py.class
-
-# virtualenv
-.venv/
-venv/
+# Generated files
+*.[oa]
+*.py[co]
+*.rbc
